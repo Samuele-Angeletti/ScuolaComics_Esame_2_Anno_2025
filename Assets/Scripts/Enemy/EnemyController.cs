@@ -23,6 +23,8 @@ public class EnemyController : MonoBehaviour
     [Header("Graphics")]
     [SerializeField] SpriteRenderer graphicsObject;
 
+    // TODO: Modificare lo script in modo che si usi il RigidBody2D per il movimento invece che transform.position
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -92,7 +94,8 @@ public class EnemyController : MonoBehaviour
 
     private void ReachExit()
     {
-        Destroy(gameObject);
+        // TODO: In che modo possiamo togliere la vita alla Base del giocatore senza avere un riferimento diretto?
+        Die();
     }
 
     public void TakeDamage(float amount)
@@ -109,6 +112,7 @@ public class EnemyController : MonoBehaviour
 
     private void Die()
     {
+        // TODO: Si potrebbe fare di meglio? Come possiamo non eliminare l'oggetto e usarlo in un altro modo?
         Destroy(gameObject);
     }
 }

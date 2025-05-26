@@ -4,14 +4,15 @@ using UnityEngine;
 public class TurretController : MonoBehaviour
 {
     [Header("Targeting")]
-    public float range = 5f;
-    public float fireRate = 1f;
+    [SerializeField] float range = 5f;
+    [SerializeField] float fireRate = 1f;
+    [SerializeField] float projectileSpeed = 1000f;
     private float fireCooldown = 0f;
 
     [Header("References")]
-    public Transform cannonGraphics;
-    public Transform firePoint;
-    public GameObject projectilePrefab;
+    [SerializeField] Transform cannonGraphics;
+    [SerializeField] Transform firePoint;
+    [SerializeField] GameObject projectilePrefab;
 
     private void Update()
     {
@@ -48,11 +49,9 @@ public class TurretController : MonoBehaviour
             return;
 
         GameObject proj = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-        var rb = proj.GetComponent<Rigidbody2D>();
-        if (rb != null)
-        {
-            rb.linearVelocity = direction * rb.linearVelocity.magnitude;
-        }
+
+        // TODO: Bisogna gestire la distruzione del proiettile in modo intelligente ed estendibile
+        // si potrebbe usare una callback onDestroyProjectile ??
     }
 
     private void OnDrawGizmosSelected()

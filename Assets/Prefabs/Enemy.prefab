@@ -358,7 +358,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   speed: 2
-  maxHealth: 10
+  maxHealth: 5
   currentHealth: 0
   canvasLife: {fileID: 8756599401049789056}
   lifeBar: {fileID: 7582208534628997901}

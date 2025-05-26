@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-[ExecuteAlways]
 public class TowerGridManager : MonoBehaviour
 {
     public enum CellType { Empty, Road, Tree, Tower }
@@ -17,11 +17,23 @@ public class TowerGridManager : MonoBehaviour
 
     [Header("Editor Brush")]
     public CellType brushType = CellType.Road;
-    // Seleziona quale CellType “dipingere” con il click
+
+    [Header("Prefab e Torre")]
+    public GameObject cellPrefab;
+    public Transform gridParent;
+    public Transform towerParent;
 
     private CellType[,] grid;
+    private GameObject[,] gridVisual;
+
+    private TurretButton selectedTurretButton;
 
     private void OnValidate()
+    {
+        InitGrid();
+    }
+
+    private void Start()
     {
         InitGrid();
     }
@@ -41,11 +53,94 @@ public class TowerGridManager : MonoBehaviour
             if (InBounds(c)) grid[c.x, c.y] = CellType.Tree;
     }
 
-    public bool CanPlaceTower(Vector3 worldPos)
+    private void Update()
     {
-        Vector2Int c = WorldToCell(worldPos);
-        return InBounds(c) && grid[c.x, c.y] == CellType.Empty;
+        if (selectedTurretButton == null) return;
+
+        UpdateCellHighlights();
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2Int cell = WorldToCell(mouseWorldPos);
+            TryPlaceTower(cell);
+        }
     }
+
+    private void CreateVisualGrid()
+    {
+        ClearVisualGrid();
+
+        gridVisual = new GameObject[width, height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Vector3 cellPos = transform.position + new Vector3(x * cellSize, y * cellSize);
+                GameObject cell = Instantiate(cellPrefab, cellPos, Quaternion.identity, gridParent);
+                gridVisual[x, y] = cell;
+            }
+        }
+    }
+
+    private void ClearVisualGrid()
+    {
+        if (gridVisual == null) return;
+
+        foreach (var go in gridVisual)
+            if (go != null) Destroy(go);
+
+        gridVisual = null;
+    }
+
+    private void UpdateCellHighlights()
+    {
+        if (gridVisual == null) return;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                var rend = gridVisual[x, y].GetComponentInChildren<SpriteRenderer>();
+                if (grid[x, y] == CellType.Empty)
+                    rend.color = new Color(0, 1, 0, 0.5f);
+                else
+                    rend.color = new Color(1, 0, 0, 0.5f);
+            }
+        }
+    }
+
+    public void SelectTurret(TurretButton turretButton)
+    {
+        selectedTurretButton = turretButton;
+        CreateVisualGrid();
+    }
+
+    public void CancelTurretSelection()
+    {
+        selectedTurretButton = null;
+        ClearVisualGrid();
+    }
+
+    private void TryPlaceTower(Vector2Int cell)
+    {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+
+        if (!InBounds(cell)) return;
+        if (grid[cell.x, cell.y] != CellType.Empty) return;
+
+        if (GameManager.Instance.SpendCoins(selectedTurretButton.cost))
+        {
+            Vector3 spawnPos = transform.position + new Vector3(cell.x * cellSize + cellSize / 2f, cell.y * cellSize + cellSize / 2f);
+            Instantiate(selectedTurretButton.TurretPrefab, spawnPos, Quaternion.identity, towerParent);
+            grid[cell.x, cell.y] = CellType.Tower;
+        }
+    }
+
+    private bool InBounds(Vector2Int c) =>
+        c.x >= 0 && c.x < width && c.y >= 0 && c.y < height;
 
     public Vector2Int WorldToCell(Vector3 worldPos)
     {
@@ -54,10 +149,6 @@ public class TowerGridManager : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    private bool InBounds(Vector2Int c) =>
-        c.x >= 0 && c.x < width && c.y >= 0 && c.y < height;
-
-    // Chiamata dall'Editor per aggiungere o togliere la cella corrispondente
     public void ToggleCell(Vector2Int cell)
     {
         if (!InBounds(cell)) return;
@@ -73,11 +164,9 @@ public class TowerGridManager : MonoBehaviour
                 if (treeCells.Contains(cell)) treeCells.Remove(cell);
                 else treeCells.Add(cell);
                 break;
-
-                // qui potresti aggiungere altri tipi di “dipingere”
         }
 
-        OnValidate();  // ricostruisce subito la griglia
+        OnValidate();
     }
 
     private void OnDrawGizmos()

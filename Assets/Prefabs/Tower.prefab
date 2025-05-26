@@ -168,9 +168,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   range: 2
   fireRate: 1
-  cannonGraphics: {fileID: 7828174978622170083}
+  projectileSpeed: 1000
+  cannonGraphics: {fileID: 2887825084856791242}
   firePoint: {fileID: 408199583184931185}
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 6511734976158796608, guid: abb6f8dc185a8804e87ff4f1c0e44657, type: 3}
 --- !u!1 &8379643078284845944
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,10 +283,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8935035367013864692}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.70710677, w: 0.7071068}
   m_LocalPosition: {x: 0.47000003, y: -0.01999998, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2887825084856791242}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
